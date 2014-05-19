@@ -530,7 +530,6 @@ InterCode *translate_exp(struct Node *node,Operand *op)
 			t3.u.temp_no = temp_num;
 			InterCode *code5 = (InterCode *)malloc(sizeof(InterCode));
 			int number = numberofvar(n1->ID);
-			//printf("%s %d\n",n1->ID,number);
 			if(number > 0)
 			{
 				code5->kind = ADDR;
