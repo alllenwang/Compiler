@@ -23,8 +23,26 @@ InterCode *translate_exp(struct Node *node,Operand *op)
 				Operand t1;
 				t1.kind = TEMP;
 				t1.u.temp_no = temp_num;
-				
-				InterCode *code1 = translate_exp(exp2,&t1);
+	
+				if(exp2->child[0]->type == eINT)
+				{
+					t1.kind = CONSTANT;
+					t1.u.value = exp2->child[0]->intvalue;
+				}
+				else if(exp2->child[0]->type == eID)
+				{
+					t1.kind = VARIABLE;
+					int number = numberofvar(exp2->child[0]->ID);
+					if(number > 0)
+						t1.u.var_no = number;
+					else
+						t1.u.var_no = 0 - number;
+				}
+				else
+				{
+					InterCode *code1 = translate_exp(exp2,&t1);
+				}
+	
 				InterCode *code2 = (InterCode *)malloc(sizeof(InterCode));
 				code2->kind = ASSIGN;
 				code2->u.assign.left.kind = VARIABLE;
