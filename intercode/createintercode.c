@@ -814,8 +814,43 @@ InterCode *translate_cond(struct Node *node, int label_true, int label_false)
 			t2.kind = TEMP;
 			t2.u.temp_no = temp_num;
 			
-			InterCode *code1 = translate_exp(node->child[0], &t1);
-			InterCode *code2 = translate_exp(node->child[2], &t2);
+			if(node->child[0]->child[0]->type == eINT)
+			{
+				t1.kind = CONSTANT;
+				t1.u.value = node->child[0]->child[0]->intvalue;
+			}
+			else if(node->child[0]->child[0]->type == eID)
+			{
+				t1.kind = VARIABLE;
+				int number = numberofvar(node->child[0]->child[0]->ID);
+				if(number > 0)
+					t1.u.var_no = number;
+				else
+					t1.u.var_no = 0 - number;
+			}
+			else
+			{
+				InterCode *code1 = translate_exp(node->child[0],&t1);
+			}
+
+			if(node->child[2]->child[0]->type == eINT)
+			{
+				t2.kind = CONSTANT;
+				t2.u.value = node->child[2]->child[0]->intvalue;
+			}
+			else if(node->child[2]->child[0]->type == eID)
+			{
+				t2.kind = VARIABLE;
+				int number = numberofvar(node->child[2]->child[0]->ID);
+				if(number > 0)
+					t2.u.var_no = number;
+				else
+					t2.u.var_no = 0 - number;
+			}
+			else
+			{
+				InterCode *code2 = translate_exp(node->child[2],&t2);
+			}
 			
 			InterCode *code3 = (InterCode *)malloc(sizeof(InterCode));
 			code3->kind = IF;
