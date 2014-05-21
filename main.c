@@ -51,6 +51,7 @@ int main(int argc, char** argv)
 				perror(argv[2]);
 				return 1;
 			}
+			optimize();
 			printcode(wf);
 			fclose(wf); 
 		}
@@ -61,7 +62,6 @@ int main(int argc, char** argv)
 	}
 	else
 		printf("Syntax ERROR !!!!\n");
-
 	
 	return 0;
 

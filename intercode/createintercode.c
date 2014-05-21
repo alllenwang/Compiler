@@ -115,21 +115,20 @@ InterCode *translate_exp(struct Node *node,Operand *op)
 				code1->next = NULL;
 				InterCodeInsert(code1);
 			*/	
-				int pos = total;
-				while(n1->type != eID)
+				int pos = num;
+		 		while(n1->type != eID)
 				{
 					pos --;
 					temp_num ++;
 					Operand t2;
 					t2.kind = TEMP;
 					t2.u.temp_no = temp_num;
-					
 					if(n2->child[0]->type == eINT)
 					{
 						t2.kind = CONSTANT;
 						t2.u.value =n2->child[0]->intvalue;
 					}
-					else if(n2->child[0]->type == eID)
+					else if(n2->child[0]->type == eID && n2->child[1] == NULL)
 					{
 						t2.kind = VARIABLE;
 						int number = numberofvar(n2->child[0]->ID);
@@ -145,31 +144,42 @@ InterCode *translate_exp(struct Node *node,Operand *op)
 				
 
 					//InterCode *code1 = translate_exp(n2,&t2);
+					temp_num ++;
+					Operand t;
+					t.kind = TEMP;
+					t.u.temp_no = temp_num;
 					if(size[pos] != 1)
 					{
 						InterCode *code2 = (InterCode *)malloc(sizeof(InterCode));
 						code2->kind = MUL;
-						code2->u.binop.result = t2;
+						code2->u.binop.result = t;
 						code2->u.binop.op1 = t2;
 						code2->u.binop.op2.kind = CONSTANT;
 						code2->u.binop.op2.u.value = size[pos];
 						code2->last = NULL;
 						code2->next = NULL;
 						InterCodeInsert(code2);
+						InterCode *code3 = (InterCode *)malloc(sizeof(InterCode));
+						code3->kind = ADD;
+						code3->u.binop.result = t1;
+						code3->u.binop.op1 = t1;
+						code3->u.binop.op2 = t;
+						code3->last = NULL;
+						code3->next = NULL;
+						InterCodeInsert(code3);
 					}
-					InterCode *code3 = (InterCode *)malloc(sizeof(InterCode));
-					code3->kind = ADD;
-					code3->u.binop.result = t1;
-					code3->u.binop.op1 = t1;
-					if(size[pos] == 1)
+					else
 					{
+						InterCode *code3 = (InterCode *)malloc(sizeof(InterCode));
+						code3->kind = ADD;
+						code3->u.binop.result = t1;
 						code3->u.binop.op1.kind = CONSTANT;
 						code3->u.binop.op1.u.value = 0;
+						code3->u.binop.op2 = t2;
+						code3->last = NULL;
+						code3->next = NULL;
+						InterCodeInsert(code3);
 					}
-					code3->u.binop.op2 = t2;
-					code3->last = NULL;
-					code3->next = NULL;
-					InterCodeInsert(code3);
 					if(n1->child[2] != NULL)
 					{
 						n2 = n1->child[2];
@@ -179,9 +189,8 @@ InterCode *translate_exp(struct Node *node,Operand *op)
 					{
 						n1 = n1->child[0];
 					}
-					
 				}
-		
+				
 				InterCode *code4 = (InterCode *)malloc(sizeof(InterCode));
 				code4->kind = MUL;
 				code4->u.binop.result = t1;
@@ -216,7 +225,7 @@ InterCode *translate_exp(struct Node *node,Operand *op)
 					t4.kind = CONSTANT;
 					t4.u.value =exp2->child[0]->intvalue;
 				}
-				else if(exp2->child[0]->type == eID)
+				else if(exp2->child[0]->type == eID && exp2->child[1] == NULL)
 				{
 					t4.kind = VARIABLE;
 					int number = numberofvar(exp2->child[0]->ID);
@@ -305,7 +314,7 @@ InterCode *translate_exp(struct Node *node,Operand *op)
 			Operand t1;
 			t1.kind = TEMP;
 			t1.u.temp_no = temp_num;
-			
+			int temp = 0;
 			temp_num ++;
 			Operand t2;
 			t2.kind = TEMP;
@@ -314,8 +323,9 @@ InterCode *translate_exp(struct Node *node,Operand *op)
 			{
 				t1.kind = CONSTANT;
 				t1.u.value = node->child[0]->child[0]->intvalue;
+				temp ++;
 			}
-			else if(node->child[0]->child[0]->type == eID)
+			else if(node->child[0]->child[0]->type == eID && node->child[0]->child[1] == NULL)
 			{
 				t1.kind = VARIABLE;
 				int number = numberofvar(node->child[0]->child[0]->ID);
@@ -330,10 +340,11 @@ InterCode *translate_exp(struct Node *node,Operand *op)
 			}
 			if(node->child[2]->child[0]->type == eINT)
 			{
+				temp ++;
 				t2.kind = CONSTANT;
 				t2.u.value = node->child[2]->child[0]->intvalue;
 			}
-			else if(node->child[2]->child[0]->type == eID)
+			else if(node->child[2]->child[0]->type == eID && node->child[2]->child[1] == NULL)
 			{
 				t2.kind = VARIABLE;
 				int number = numberofvar(node->child[2]->child[0]->ID);
@@ -346,6 +357,7 @@ InterCode *translate_exp(struct Node *node,Operand *op)
 			{
 				InterCode *code2 = translate_exp(node->child[2],&t2);
 			}
+			
 			InterCode *code3 = (InterCode *)malloc(sizeof(InterCode));
 			switch(node->child[1]->type)
 			{
@@ -355,7 +367,6 @@ InterCode *translate_exp(struct Node *node,Operand *op)
 				case eDIV:	code3->kind = DIV;	break;
 				default:	printf("error!!\n");	break;
 			}
-			
 			code3->u.binop.result.kind = op->kind;
 			code3->u.binop.result.u = op->u;
 			code3->u.binop.op1 = t1;
@@ -363,6 +374,7 @@ InterCode *translate_exp(struct Node *node,Operand *op)
 			code3->last = NULL;
 			code3->next = NULL;
 			InterCodeInsert(code3);
+			
 		}
 		else if(node->child[0]->type == eLP)
 		{
@@ -561,7 +573,7 @@ InterCode *translate_exp(struct Node *node,Operand *op)
 					t2.kind = CONSTANT;
 					t2.u.value = n2->child[0]->intvalue;
 				}
-				else if(n2->child[0]->type == eID)
+				else if(n2->child[0]->type == eID && n2->child[1] == NULL)
 				{
 					t2.kind = VARIABLE;
 					int number = numberofvar(n2->child[0]->ID);
@@ -576,31 +588,43 @@ InterCode *translate_exp(struct Node *node,Operand *op)
 				}
 
 				//InterCode *code1 = translate_exp(n2,&t2);
+				temp_num ++;
+				Operand t;
+				t.kind = TEMP;
+				t.u.temp_no = temp_num;
 				if(size[pos] != 1)
 				{
 					InterCode *code2 = (InterCode *)malloc(sizeof(InterCode));
 					code2->kind = MUL;
-					code2->u.binop.result = t2;
+					code2->u.binop.result = t;
 					code2->u.binop.op1 = t2;
 					code2->u.binop.op2.kind = CONSTANT;
 					code2->u.binop.op2.u.value = size[pos];
 					code2->last = NULL;
 					code2->next = NULL;
 					InterCodeInsert(code2);
+					InterCode *code3 = (InterCode *)malloc(sizeof(InterCode));
+					code3->kind = ADD;
+					code3->u.binop.result = t1;
+					code3->u.binop.op1 = t;
+					code3->u.binop.op2 = t1;
+					code3->last = NULL;
+					code3->next = NULL;
+					InterCodeInsert(code3);
 				}
-				InterCode *code3 = (InterCode *)malloc(sizeof(InterCode));
-				code3->kind = ADD;
-				code3->u.binop.result = t1;
-				code3->u.binop.op1 = t1;
-				code3->u.binop.op2 = t2;
-				if(size[pos] == 1)
+				else
 				{
+					InterCode *code3 = (InterCode *)malloc(sizeof(InterCode));
+					code3->kind = ADD;
+					code3->u.binop.result = t1;
 					code3->u.binop.op1.kind = CONSTANT;
 					code3->u.binop.op1.u.value = 0;
+					code3->u.binop.op2 = t2;
+					code3->last = NULL;
+					code3->next = NULL;
+					InterCodeInsert(code3);
 				}
-				code3->last = NULL;
-				code3->next = NULL;
-				InterCodeInsert(code3);
+				
 				if(n1->child[2] != NULL)
 				{
 					n2 = n1->child[2];
@@ -902,7 +926,7 @@ InterCode *translate_cond(struct Node *node, int label_true, int label_false)
 				t1.kind = CONSTANT;
 				t1.u.value = node->child[0]->child[0]->intvalue;
 			}
-			else if(node->child[0]->child[0]->type == eID)
+			else if(node->child[0]->child[0]->type == eID && node->child[0]->child[1] == NULL)
 			{
 				t1.kind = VARIABLE;
 				int number = numberofvar(node->child[0]->child[0]->ID);
@@ -921,7 +945,7 @@ InterCode *translate_cond(struct Node *node, int label_true, int label_false)
 				t2.kind = CONSTANT;
 				t2.u.value = node->child[2]->child[0]->intvalue;
 			}
-			else if(node->child[2]->child[0]->type == eID)
+			else if(node->child[2]->child[0]->type == eID && node->child[2]->child[1] == NULL)
 			{
 				t2.kind = VARIABLE;
 				int number = numberofvar(node->child[2]->child[0]->ID);
@@ -997,7 +1021,7 @@ InterCode *translate_cond(struct Node *node, int label_true, int label_false)
 		t1.kind = CONSTANT;
 		t1.u.value = node->child[0]->intvalue;
 	}
-	else if(node->child[0]->type == eID)
+	else if(node->child[0]->type == eID && node->child[1] == NULL)
 	{
 		t1.kind = VARIABLE;
 		int number = numberofvar(node->child[0]->ID);

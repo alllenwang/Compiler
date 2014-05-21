@@ -31,6 +31,25 @@ void InterCodePlus(InterCode * first , InterCode * node)
 		node->last = first;
 	}
 }
+void deletenode(InterCode * node)
+{
+	if(node->next == NULL)
+	{
+		node->last->next = NULL;
+		free(node);
+	}
+	else if(node->last == NULL)
+	{
+		node->next->last = NULL;
+		free(node);
+	}
+	else
+	{
+		node->last->next = node->next;
+		node->next->last = node->last;
+		free(node);
+	}
+}
 int numberofvar(char *name)
 {
 	variable * temp = variableHead;
@@ -205,4 +224,348 @@ void printcode(FILE* wf)
 		}
 		
 	}
+}
+void optimize()
+{
+	InterCode * temp1 = InterCodeHead;
+	InterCode * temp2 = temp1->next;
+	int num = 0;
+	while(temp1 != NULL && temp2 != NULL)
+	{
+		if((temp1->kind == ADD ||temp1->kind == SUB || temp1->kind == MUL || temp1->kind == DIV) && 
+			 (temp2->kind == ADD ||temp2->kind == SUB || temp2->kind == MUL || temp2->kind == DIV))
+		{
+		
+			if(temp1->u.binop.result.kind == temp2->u.binop.op1.kind && temp1->u.binop.result.u.value == temp2->u.binop.op1.u.value)
+			{
+				if(temp1->kind == ADD)
+				{
+					if(temp1->u.binop.op1.kind == CONSTANT && temp1->u.binop.op2.kind == CONSTANT)
+					{
+						int result = temp1->u.binop.op1.u.value + temp1->u.binop.op2.u.value;
+						temp2->u.binop.op1.kind = CONSTANT;
+						temp2->u.binop.op1.u.value = result;
+						InterCode * temp = temp1;
+						temp1 = temp1->next;
+						temp2 = temp2->next;
+						deletenode(temp);
+						num ++;
+						continue;
+					}
+					else if(temp1->u.binop.op1.kind == CONSTANT && temp1->u.binop.op1.u.value == 0)
+					{
+						temp2->u.binop.op1.kind = temp1->u.binop.op2.kind;
+						temp2->u.binop.op1.u = temp1->u.binop.op2.u;
+						InterCode * temp = temp1;
+						temp1 = temp1->next;
+						temp2 = temp2->next;
+						deletenode(temp);
+						num ++;
+						continue;
+					}
+					else if(temp1->u.binop.op2.kind == CONSTANT && temp1->u.binop.op2.u.value == 0)
+					{
+						temp2->u.binop.op1.kind = temp1->u.binop.op1.kind;
+						temp2->u.binop.op1.u = temp1->u.binop.op1.u;
+						InterCode * temp = temp1;
+						temp1 = temp1->next;
+						temp2 = temp2->next;
+						deletenode(temp);
+						num ++;
+						continue;
+					}
+					else
+					{
+						temp1 = temp1->next;
+						temp2 = temp2->next;
+					}
+				}
+				else if(temp1->kind == SUB)
+				{
+					if(temp1->u.binop.op1.kind == CONSTANT && temp1->u.binop.op2.kind == CONSTANT)
+					{
+						int result = temp1->u.binop.op1.u.value - temp1->u.binop.op2.u.value;
+						temp2->u.binop.op1.kind = CONSTANT;
+						temp2->u.binop.op1.u.value = result;
+						InterCode * temp = temp1;
+						temp1 = temp1->next;
+						temp2 = temp2->next;
+						deletenode(temp);
+						num ++;
+						continue;
+					}
+					else if(temp1->u.binop.op2.kind == CONSTANT && temp1->u.binop.op2.u.value == 0)
+					{
+						temp2->u.binop.op1.kind = temp1->u.binop.op1.kind;
+						temp2->u.binop.op1.u = temp1->u.binop.op1.u;
+						InterCode * temp = temp1;
+						temp1 = temp1->next;
+						temp2 = temp2->next;
+						deletenode(temp);
+						num ++;
+						continue;
+					}
+					else
+					{
+						temp1 = temp1->next;
+						temp2 = temp2->next;
+					}
+				}
+				else if(temp1->kind == MUL)
+				{
+					if(temp1->u.binop.op1.kind == CONSTANT && temp1->u.binop.op2.kind == CONSTANT)
+					{
+						int result = temp1->u.binop.op1.u.value * temp1->u.binop.op2.u.value;
+						temp2->u.binop.op1.kind = CONSTANT;
+						temp2->u.binop.op1.u.value = result;
+						InterCode * temp = temp1;
+						temp1 = temp1->next;
+						temp2 = temp2->next;
+						deletenode(temp);
+						num ++;
+						continue;
+					}
+					else if(temp1->u.binop.op1.kind == CONSTANT && temp1->u.binop.op1.u.value == 0)
+					{
+						temp2->u.binop.op1.kind = CONSTANT;
+						temp2->u.binop.op1.u.value = 0;
+						InterCode * temp = temp1;
+						temp1 = temp1->next;
+						temp2 = temp2->next;
+						deletenode(temp);
+						num ++;
+						continue;
+					}
+					else if(temp1->u.binop.op2.kind == CONSTANT && temp1->u.binop.op2.u.value == 0)
+					{
+						temp2->u.binop.op1.kind = CONSTANT;
+						temp2->u.binop.op1.u.value = 0;
+						InterCode * temp = temp1;
+
+						temp1 = temp1->next;
+						temp2 = temp2->next;
+						deletenode(temp);
+						num ++;
+						continue;
+					}
+					else
+					{
+						temp1 = temp1->next;
+						temp2 = temp2->next;
+					}
+				}
+				else if(temp1->kind == DIV)
+				{
+					if(temp1->u.binop.op1.kind == CONSTANT && temp1->u.binop.op2.kind == CONSTANT)
+					{
+						int result = temp1->u.binop.op1.u.value / temp1->u.binop.op2.u.value;
+						temp2->u.binop.op1.kind = CONSTANT;
+						temp2->u.binop.op1.u.value = result;
+						InterCode * temp = temp1;
+						temp1 = temp1->next;
+						temp2 = temp2->next;
+						deletenode(temp);
+						num ++;
+						continue;
+					}
+					else if(temp1->u.binop.op1.kind == CONSTANT && temp1->u.binop.op1.u.value == 0)
+					{
+						temp2->u.binop.op1.kind = CONSTANT;
+						temp2->u.binop.op1.u.value = 0;
+						InterCode * temp = temp1;
+						temp1 = temp1->next;
+						temp2 = temp2->next;
+						deletenode(temp);
+						num ++;
+						continue;
+					}
+					else
+					{
+						temp1 = temp1->next;
+						temp2 = temp2->next;
+					}
+				}
+				else 
+				{
+					temp1 = temp1->next;
+					temp2 = temp2->next;
+				}
+			}
+			else if(temp1->u.binop.result.kind == temp2->u.binop.op2.kind && temp1->u.binop.result.u.value == temp2->u.binop.op2.u.value)
+			{
+				if(temp1->kind == ADD)
+				{
+					if(temp1->u.binop.op1.kind == CONSTANT && temp1->u.binop.op2.kind == CONSTANT)
+					{
+						int result = temp1->u.binop.op1.u.value + temp1->u.binop.op2.u.value;
+						temp2->u.binop.op2.kind = CONSTANT;
+						temp2->u.binop.op2.u.value = result;
+						InterCode * temp = temp1;
+						temp1 = temp1->next;
+						temp2 = temp2->next;
+						deletenode(temp);
+						num ++;
+						continue;
+					}
+					else if(temp1->u.binop.op1.kind == CONSTANT && temp1->u.binop.op1.u.value == 0)
+					{
+						temp2->u.binop.op2.kind = temp1->u.binop.op2.kind;
+						temp2->u.binop.op2.u = temp1->u.binop.op2.u;
+						InterCode * temp = temp1;
+						temp1 = temp1->next;
+						temp2 = temp2->next;
+						deletenode(temp);
+						num ++;
+						continue;
+					}
+					else if(temp1->u.binop.op2.kind == CONSTANT && temp1->u.binop.op2.u.value == 0)
+					{
+						temp2->u.binop.op2.kind = temp1->u.binop.op1.kind;
+						temp2->u.binop.op2.u = temp1->u.binop.op1.u;
+						InterCode * temp = temp1;
+						temp1 = temp1->next;
+						temp2 = temp2->next;
+						deletenode(temp);
+						num ++;
+						continue;
+					}
+					else
+					{
+						temp1 = temp1->next;
+						temp2 = temp2->next;
+					}
+				}
+				else if(temp1->kind == SUB)
+				{
+					if(temp1->u.binop.op1.kind == CONSTANT && temp1->u.binop.op2.kind == CONSTANT)
+					{
+						int result = temp1->u.binop.op1.u.value - temp1->u.binop.op2.u.value;
+						temp2->u.binop.op2.kind = CONSTANT;
+						temp2->u.binop.op2.u.value = result;
+						InterCode * temp = temp1;
+						temp1 = temp1->next;
+						temp2 = temp2->next;
+						deletenode(temp);
+						num ++;
+						continue;
+					}
+					else if(temp1->u.binop.op2.kind == CONSTANT && temp1->u.binop.op2.u.value == 0)
+					{
+						temp2->u.binop.op2.kind = temp1->u.binop.op1.kind;
+						temp2->u.binop.op2.u = temp1->u.binop.op1.u;
+						InterCode * temp = temp1;
+						temp1 = temp1->next;
+						temp2 = temp2->next;
+						deletenode(temp);
+						num ++;
+						continue;
+					}
+					else
+					{
+						temp1 = temp1->next;
+						temp2 = temp2->next;
+					}
+				}
+				else if(temp1->kind == MUL)
+				{
+					if(temp1->u.binop.op1.kind == CONSTANT && temp1->u.binop.op2.kind == CONSTANT)
+					{
+						int result = temp1->u.binop.op1.u.value * temp1->u.binop.op2.u.value;
+						temp2->u.binop.op2.kind = CONSTANT;
+						temp2->u.binop.op2.u.value = result;
+						InterCode * temp = temp1;
+						temp1 = temp1->next;
+						temp2 = temp2->next;
+						deletenode(temp);
+						num ++;
+						continue;
+					}
+					else if(temp1->u.binop.op1.kind == CONSTANT && temp1->u.binop.op1.u.value == 0)
+					{
+						temp2->u.binop.op2.kind = CONSTANT;
+						temp2->u.binop.op2.u.value = 0;
+						InterCode * temp = temp1;
+						temp1 = temp1->next;
+						temp2 = temp2->next;
+						deletenode(temp);
+						num ++;
+						continue;
+					}
+					else if(temp1->u.binop.op2.kind == CONSTANT && temp1->u.binop.op2.u.value == 0)
+					{
+						temp2->u.binop.op2.kind = CONSTANT;
+						temp2->u.binop.op2.u.value = 0;
+						InterCode * temp = temp1;
+						temp1 = temp1->next;
+						temp2 = temp2->next;
+						deletenode(temp);
+						num ++;
+						continue;
+					}
+					else
+					{
+						temp1 = temp1->next;
+						temp2 = temp2->next;
+					}
+				}
+				else if(temp1->kind == DIV)
+				{
+					if(temp1->u.binop.op1.kind == CONSTANT && temp1->u.binop.op2.kind == CONSTANT)
+					{
+						int result = temp1->u.binop.op1.u.value / temp1->u.binop.op2.u.value;
+						temp2->u.binop.op2.kind = CONSTANT;
+						temp2->u.binop.op2.u.value = result;
+						InterCode * temp = temp1;
+						temp1 = temp1->next;
+						temp2 = temp2->next;
+						deletenode(temp);
+						num ++;
+						continue;
+					}
+					else if(temp1->u.binop.op1.kind == CONSTANT && temp1->u.binop.op1.u.value == 0)
+					{
+						temp2->u.binop.op2.kind = CONSTANT;
+						temp2->u.binop.op2.u.value = 0;
+						InterCode * temp = temp1;
+						temp1 = temp1->next;
+						temp2 = temp2->next;
+						deletenode(temp);
+						num ++;
+						continue;
+					}
+					else
+					{
+						temp1 = temp1->next;
+						temp2 = temp2->next;
+					}
+				}
+				else 
+				{
+					temp1 = temp1->next;
+					temp2 = temp2->next;
+				}
+			}
+		/*	else if(temp1->u.binop.result.kind == CONSTANT)
+			{
+				InterCode * temp = temp1;
+				temp1 = temp1->next;
+				temp2 = temp2->next;
+				deletenode(temp);
+				num ++;
+				continue;
+			}
+		*/	else
+			{
+				temp1 = temp1->next;
+				temp2 = temp2->next;
+			}
+		}
+		else
+		{
+			temp1 = temp1->next;
+			temp2 = temp2->next;
+		}
+	}
+	if(num > 0)
+		optimize();
 }

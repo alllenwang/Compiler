@@ -44,8 +44,8 @@ void InterCodePlus(InterCode * first , InterCode * node);
 void printcode(FILE* wf);
 void printoperand(FILE* wf, Operand a);
 void resetvar(char *name);
-
-
+void optimize();
+void deletenode(InterCode * node);
 
 
 
