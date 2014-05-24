@@ -233,10 +233,10 @@ void optimize()
 	while(temp1 != NULL && temp2 != NULL)
 	{
 		if((temp1->kind == ADD ||temp1->kind == SUB || temp1->kind == MUL || temp1->kind == DIV) && 
-			 (temp2->kind == ADD ||temp2->kind == SUB || temp2->kind == MUL || temp2->kind == DIV))
+			 (temp2->kind == ADD ||temp2->kind == SUB || temp2->kind == MUL || temp2->kind == DIV || temp2->kind == ADDR))
 		{
 		
-			if(temp1->u.binop.result.kind == temp2->u.binop.op1.kind && temp1->u.binop.result.u.value == temp2->u.binop.op1.u.value)
+			if(temp1->u.binop.result.kind == temp2->u.binop.op1.kind && temp1->u.binop.result.u.value == temp2->u.binop.op1.u.value && temp2->kind != ADDR)
 			{
 				if(temp1->kind == ADD)
 				{
