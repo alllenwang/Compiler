@@ -314,7 +314,7 @@ struct table_node *analysis_exp(struct Node *node)
 					error = 1;
 					break;
 				}
-				if(q1->type == func->type && q1->basic_type == func->basic_type)
+				if((q1->type == func->type || q1->type == 3)  && q1->basic_type == func->basic_type)
 				{
 					if(q1->type == 2)
 					{

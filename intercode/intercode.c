@@ -252,7 +252,7 @@ void optimize()
 						num ++;
 						continue;
 					}
-					else if(temp1->u.binop.op1.kind == CONSTANT && temp1->u.binop.op1.u.value == 0)
+					else if(temp1->u.binop.op1.kind == CONSTANT && temp1->u.binop.op1.u.value == 0 && temp1->u.binop.result.kind != VARIABLE)
 					{
 						temp2->u.binop.op1.kind = temp1->u.binop.op2.kind;
 						temp2->u.binop.op1.u = temp1->u.binop.op2.u;
@@ -263,7 +263,7 @@ void optimize()
 						num ++;
 						continue;
 					}
-					else if(temp1->u.binop.op2.kind == CONSTANT && temp1->u.binop.op2.u.value == 0)
+					else if(temp1->u.binop.op2.kind == CONSTANT && temp1->u.binop.op2.u.value == 0 && temp1->u.binop.result.kind != VARIABLE)
 					{
 						temp2->u.binop.op1.kind = temp1->u.binop.op1.kind;
 						temp2->u.binop.op1.u = temp1->u.binop.op1.u;
@@ -294,7 +294,7 @@ void optimize()
 						num ++;
 						continue;
 					}
-					else if(temp1->u.binop.op2.kind == CONSTANT && temp1->u.binop.op2.u.value == 0)
+					else if(temp1->u.binop.op2.kind == CONSTANT && temp1->u.binop.op2.u.value == 0 && temp1->u.binop.result.kind != VARIABLE)
 					{
 						temp2->u.binop.op1.kind = temp1->u.binop.op1.kind;
 						temp2->u.binop.op1.u = temp1->u.binop.op1.u;
@@ -325,7 +325,7 @@ void optimize()
 						num ++;
 						continue;
 					}
-					else if(temp1->u.binop.op1.kind == CONSTANT && temp1->u.binop.op1.u.value == 0)
+					else if(temp1->u.binop.op1.kind == CONSTANT && temp1->u.binop.op1.u.value == 0 && temp1->u.binop.result.kind != VARIABLE)
 					{
 						temp2->u.binop.op1.kind = CONSTANT;
 						temp2->u.binop.op1.u.value = 0;
@@ -336,7 +336,7 @@ void optimize()
 						num ++;
 						continue;
 					}
-					else if(temp1->u.binop.op2.kind == CONSTANT && temp1->u.binop.op2.u.value == 0)
+					else if(temp1->u.binop.op2.kind == CONSTANT && temp1->u.binop.op2.u.value == 0 && temp1->u.binop.result.kind != VARIABLE)
 					{
 						temp2->u.binop.op1.kind = CONSTANT;
 						temp2->u.binop.op1.u.value = 0;
@@ -368,7 +368,7 @@ void optimize()
 						num ++;
 						continue;
 					}
-					else if(temp1->u.binop.op1.kind == CONSTANT && temp1->u.binop.op1.u.value == 0)
+					else if(temp1->u.binop.op1.kind == CONSTANT && temp1->u.binop.op1.u.value == 0 && temp1->u.binop.result.kind != VARIABLE)
 					{
 						temp2->u.binop.op1.kind = CONSTANT;
 						temp2->u.binop.op1.u.value = 0;
@@ -391,7 +391,7 @@ void optimize()
 					temp2 = temp2->next;
 				}
 			}
-			else if(temp1->u.binop.result.kind == temp2->u.binop.op2.kind && temp1->u.binop.result.u.value == temp2->u.binop.op2.u.value)
+			else if(temp1->u.binop.result.kind == temp2->u.binop.op2.kind && temp1->u.binop.result.u.value == temp2->u.binop.op2.u.value )
 			{
 				if(temp1->kind == ADD)
 				{
@@ -407,7 +407,7 @@ void optimize()
 						num ++;
 						continue;
 					}
-					else if(temp1->u.binop.op1.kind == CONSTANT && temp1->u.binop.op1.u.value == 0)
+					else if(temp1->u.binop.op1.kind == CONSTANT && temp1->u.binop.op1.u.value == 0 && temp1->u.binop.result.kind != VARIABLE)
 					{
 						temp2->u.binop.op2.kind = temp1->u.binop.op2.kind;
 						temp2->u.binop.op2.u = temp1->u.binop.op2.u;
@@ -418,7 +418,7 @@ void optimize()
 						num ++;
 						continue;
 					}
-					else if(temp1->u.binop.op2.kind == CONSTANT && temp1->u.binop.op2.u.value == 0)
+					else if(temp1->u.binop.op2.kind == CONSTANT && temp1->u.binop.op2.u.value == 0 && temp1->u.binop.result.kind != VARIABLE)
 					{
 						temp2->u.binop.op2.kind = temp1->u.binop.op1.kind;
 						temp2->u.binop.op2.u = temp1->u.binop.op1.u;
@@ -437,7 +437,7 @@ void optimize()
 				}
 				else if(temp1->kind == SUB)
 				{
-					if(temp1->u.binop.op1.kind == CONSTANT && temp1->u.binop.op2.kind == CONSTANT)
+					if(temp1->u.binop.op1.kind == CONSTANT && temp1->u.binop.op2.kind == CONSTANT && temp1->u.binop.result.kind != VARIABLE)
 					{
 						int result = temp1->u.binop.op1.u.value - temp1->u.binop.op2.u.value;
 						temp2->u.binop.op2.kind = CONSTANT;
@@ -449,7 +449,7 @@ void optimize()
 						num ++;
 						continue;
 					}
-					else if(temp1->u.binop.op2.kind == CONSTANT && temp1->u.binop.op2.u.value == 0)
+					else if(temp1->u.binop.op2.kind == CONSTANT && temp1->u.binop.op2.u.value == 0 && temp1->u.binop.result.kind != VARIABLE)
 					{
 						temp2->u.binop.op2.kind = temp1->u.binop.op1.kind;
 						temp2->u.binop.op2.u = temp1->u.binop.op1.u;
@@ -480,7 +480,7 @@ void optimize()
 						num ++;
 						continue;
 					}
-					else if(temp1->u.binop.op1.kind == CONSTANT && temp1->u.binop.op1.u.value == 0)
+					else if(temp1->u.binop.op1.kind == CONSTANT && temp1->u.binop.op1.u.value == 0 && temp1->u.binop.result.kind != VARIABLE)
 					{
 						temp2->u.binop.op2.kind = CONSTANT;
 						temp2->u.binop.op2.u.value = 0;
@@ -491,7 +491,7 @@ void optimize()
 						num ++;
 						continue;
 					}
-					else if(temp1->u.binop.op2.kind == CONSTANT && temp1->u.binop.op2.u.value == 0)
+					else if(temp1->u.binop.op2.kind == CONSTANT && temp1->u.binop.op2.u.value == 0 && temp1->u.binop.result.kind != VARIABLE)
 					{
 						temp2->u.binop.op2.kind = CONSTANT;
 						temp2->u.binop.op2.u.value = 0;
@@ -522,7 +522,7 @@ void optimize()
 						num ++;
 						continue;
 					}
-					else if(temp1->u.binop.op1.kind == CONSTANT && temp1->u.binop.op1.u.value == 0)
+					else if(temp1->u.binop.op1.kind == CONSTANT && temp1->u.binop.op1.u.value == 0 && temp1->u.binop.result.kind != VARIABLE)
 					{
 						temp2->u.binop.op2.kind = CONSTANT;
 						temp2->u.binop.op2.u.value = 0;

@@ -35,6 +35,7 @@
 %left	OR
 %left	AND
 %left	NE	EQ	GE	LE	LT	GT
+%left 	RELOP
 %left	ADD	SUB
 %left	MUL	DIV
 %right	NOT	
