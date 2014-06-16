@@ -5,6 +5,7 @@
 #include "semantics/semantics.h"
 #include "intercode/intercode.h"
 #include "intercode/createintercode.h"
+#include "assembler/assembler.h"
 int main(int argc, char** argv)
 {
 	if(argc <= 2) 
@@ -55,9 +56,28 @@ int main(int argc, char** argv)
 				perror(argv[2]);
 				return 1;
 			}
+			FILE* wf1 = fopen(argv[3],"w+");
+			if(!wf1)
+			{
+				perror(argv[3]);
+				return 1;
+			}
 			optimize();
 			printcode(wf);
-			fclose(wf); 
+			create_code(wf1);
+			fclose(wf);
+			fclose(wf1); 
+			Param * te = param_head;
+			for( ; te != NULL; te = te->next)
+			{
+				printf("%d %d %d\n",te->a.kind, te->a.u.value, te->num);
+			}
+			printf("---------------\n");
+			Var * tem = var_head;
+			for( ; tem != NULL; tem = tem->next)
+			{
+				printf("%d %d %d\n",tem->a.kind, tem->a.u.value, tem->num);
+			}
 		}
 		else
 		{
