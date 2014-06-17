@@ -9,8 +9,6 @@ int fact(int n)
 int main()
 {
 	int m,result;
-	int array[4];
-	array[1] = 0;
 	m = read();
 	if(m > 1)
 		result = fact(m);

@@ -72,12 +72,13 @@ int main(int argc, char** argv)
 			{
 				printf("%d %d %d\n",te->a.kind, te->a.u.value, te->num);
 			}
-			printf("---------------\n");
-			Var * tem = var_head;
+		//	printf("---------------\n");
+		/*	Var * tem = var_head;
 			for( ; tem != NULL; tem = tem->next)
 			{
 				printf("%d %d %d\n",tem->a.kind, tem->a.u.value, tem->num);
 			}
+		*/
 		}
 		else
 		{

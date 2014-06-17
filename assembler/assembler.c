@@ -20,7 +20,7 @@ void get_temp(int num,Operand a,FILE *wf)
 		{
 			op1 = var_num(a);
 			if(op1 < 0 ) printf("error!!!\n");
-			fprintf(wf,"\tlw $t%d, %d($fp)\n",num, op1);
+			fprintf(wf,"\tlw $t%d, %d($fp)\n",num, -op1);
 		}
 		else
 		{
@@ -39,10 +39,10 @@ void send_temp(int num,Operand a,FILE *wf)
 			//var_add(4);
 			var_total_num = var_total_num + 4;
 			insert_var(a,var_total_num);
-			fprintf(wf,"\tsw $t%d, %d($fp)\n",num, var_total_num);
+			fprintf(wf,"\tsw $t%d, %d($fp)\n",num, -var_total_num);
 		}
 		else						
-			fprintf(wf,"\tsw $t%d, %d($fp)\n",num, result);
+			fprintf(wf,"\tsw $t%d, %d($fp)\n",num, -result);
 	}
 	else
 	{
@@ -143,12 +143,24 @@ void create_code(FILE *wf)
 				send_temp(0, temp->u.assign.left, wf);
 				break;
 			case ADDR:
+				get_temp(0, temp->u.addr.op1, wf);
+				get_temp(1, temp->u.addr.op2, wf);
 				
+				fprintf(wf,"\tsub $t2, $t0, $t1\n");
+				fprintf(wf,"\taddi $t2, $t2, -4\n");
+				
+				send_temp(2,temp->u.addr.result,wf);		
 				break;
 			case MEMREAD:
 				
+				get_temp(0, temp->u.assign.right, wf);
+				fprintf(wf,"\tlw $t1, 0($t0)\n");
+				send_temp(1,temp->u.assign.left,wf);
 				break;
 			case MEMWRITE:
+				get_temp(0, temp->u.assign.right, wf);
+				get_temp(1, temp->u.assign.left, wf);
+				fprintf(wf,"\tsw $t0, 0($t1)\n");
 				
 				break;
 			case ADD:
@@ -160,7 +172,7 @@ void create_code(FILE *wf)
 			case SUB:
 				get_temp(0, temp->u.addr.op1, wf);
 				get_temp(1, temp->u.addr.op2, wf);
-				fprintf(wf, "\tsub $t2, $t1, $t0\n");
+				fprintf(wf, "\tsub $t2, $t0, $t1\n");
 				send_temp(2, temp->u.addr.result, wf);
 				break;
 			case MUL:
@@ -172,7 +184,8 @@ void create_code(FILE *wf)
 			case DIV:
 				get_temp(0, temp->u.addr.op1, wf);
 				get_temp(1, temp->u.addr.op2, wf);
-				fprintf(wf, "\tdiv $t2, $t1, $t0\n");
+				fprintf(wf, "\tdiv $t1, $t0\n");
+				fprintf(wf, "\tmflo $t2\n");
 				send_temp(2, temp->u.addr.result, wf);
 				break;
 			case LABEL:
@@ -186,9 +199,8 @@ void create_code(FILE *wf)
 					fprintf(wf,"\taddi $sp, $sp, -2048\n");					
 					fprintf(wf, "\tli $t0, 8\n");
 					fprintf(wf,"\tsw $t0, 4($sp)\n");
-					
-					param_total_num = 0;
-				}	
+				}
+				param_total_num = 0;	
 				break;
 		 	case GOTO:
 				fprintf(wf,"\tj label%d\n",temp->u.label.label);
@@ -215,45 +227,53 @@ void create_code(FILE *wf)
 				fprintf(wf, "\tjr $ra\n");
 				break;
 			case DEC:
+				
 				var_total_num = var_total_num + 4;
-				insert_var(temp->u.dec.dec,var_total_num);				
+				insert_var(temp->u.dec.dec,var_total_num);
+				fprintf(wf,"\tmove $t0, $fp\n");
+				fprintf(wf,"\taddi $t0, $t0, %d\n",-var_total_num);
+				fprintf(wf,"\tsw $t0, %d($fp)\n",-var_total_num);		
+					
 				var_total_num = var_total_num + temp->u.dec.size;
 				
 				break;
 			case ARG:
 				fprintf(wf,"\tsw $ra, 0($sp)\n");
 				fprintf(wf,"\taddi $sp, $sp, %d\n",(param_total_num + 2) * 4);
-				arg_num = param_total_num;
+				//printf("param_total_num----%d\n",param_total_num);
+				
 				argpos = temp;
-				param_total_num = 1;
+				arg_num = 1;
 				for( ; argpos->next->kind == ARG; argpos = argpos->next)
 				{
-					param_total_num ++;
+					arg_num ++;
 				}
-				i = param_total_num;
+				i = arg_num;
 			
 				
 				for( ; temp->next->kind == ARG; temp = temp->next)
 				{
 					get_temp(0, temp->u.arg.result, wf);
+					printf("arg: %d\n",i);
 					fprintf(wf,"\tsw $t0, %d($sp)\n", i * 4);
 					i --;
 				}
 				get_temp(0, temp->u.arg.result, wf);
+				//printf("arg: %d\n",i);
 				fprintf(wf,"\tsw $t0, %d($sp)\n", i * 4);
+				//printf("arg_num: %d\n",arg_num);
+				fprintf(wf,"\tli $t0, %d\n", (arg_num + 2) * 4);
+				fprintf(wf,"\tsw $t0, %d($sp)\n", (arg_num + 1) * 4);
 				
-				fprintf(wf,"\tli $t0, %d\n", (param_total_num + 2) * 4);
-				fprintf(wf,"\tsw $t0, %d($sp)\n", (param_total_num + 1) * 4);
 				temp = temp->next;
-				
+				//printf("arg_num: %d----%s\n",arg_num,temp->u.callFunc.func);
 				fprintf(wf, "\tjal %s\n",temp->u.callFunc.func);
+
 				fprintf(wf, "\tlw $t0, -4($sp)\n");
-				fprintf(wf,"\tsub $sp, $fp, $t0\n");
+				fprintf(wf,"\tsub $sp, $sp, $t0\n");
 				fprintf(wf, "\tlw $ra, 0($sp)\n");
 				fprintf(wf, "\tmove $t0, $v0\n");
 				send_temp(0, temp->u.callFunc.result,wf);
-				arg_num = param_total_num;
-				
 				
 				
 				break;
@@ -275,8 +295,10 @@ void create_code(FILE *wf)
 				break;
 			case PARAM:
 				num = 1;
+				param_total_num = 1;
 				for( ; temp->next->kind == PARAM; temp = temp->next)
 				{
+					param_total_num ++;
 					insert_param(temp->u.arg.result, num);
 					num ++;
 				}
