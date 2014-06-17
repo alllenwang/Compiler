@@ -15,16 +15,19 @@ void table_insert(char *name,int line,int type,int basic_type,int instruct)
 	{
 		if(type == 3)
 		{
+			synerror = 1;
 			printf("Error type 4 at line %d:Redefined function \"%s\"\n",line,name);
 			return;		
 		}
 		if(instruct < 0)
 		{
+			synerror = 1;
 			printf("Error type 3 at line %d:Redefined variable \"%s\"\n",line,name);
 			return;
 		}
 		if(instruct > 0)
 		{
+			synerror = 1;
 			printf("Error type 15 at line %d:Redefined field\'%s\'\n",line,name);
 			return;
 		}

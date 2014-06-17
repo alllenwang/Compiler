@@ -1,13 +1,21 @@
+int fact(int n)
+{
+	if(n == 1)
+		return n;
+	else
+		return (n * fact(n-1));
+
+}
 int main()
 {
-	int a;
-	int b;
-	int c;
-	int d;
-	a = 5;
-	b = 6;
-	c = 7;
-	d = a + b + c;
-	write(d);
+	int m,result;
+	int array[4];
+	array[1] = 0;
+	m = read();
+	if(m > 1)
+		result = fact(m);
+	else
+		result = 1;
+	write(result);
 	return 0;
 }

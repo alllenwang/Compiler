@@ -19,7 +19,7 @@ struct Var
 	int num;
 	Var *next;
 };
-
+extern int var_total_num;
 extern int param_total_num;
 extern Param * param_head;
 extern Var * var_head;

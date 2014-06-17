@@ -21,43 +21,34 @@ write:
 	jr $ra
 main:
 	move $fp, $sp
-	addi $fp, $fp, -512
+	addi $sp, $sp, -2048
 	li $t0, 8
+	sw $t0, 4($sp)
+	li $t0, 1
 	sw $t0, 4($fp)
-	li $t0, 5
-	addi $sp, $sp, -4
-	sw $t0, 0($sp)
-	li $t0, 6
-	addi $sp, $sp, -4
-	sw $t0, 0($sp)
-	li $t0, 7
-	addi $sp, $sp, -4
-	sw $t0, 0($sp)
-	lw $t0, 8($sp)
-	lw $t1, 4($sp)
+	li $t0, 2
+	sw $t0, 8($fp)
+	li $t0, 3
+	sw $t0, 12($fp)
+	lw $t0, 4($fp)
+	lw $t1, 8($fp)
 	add $t2, $t1, $t0
-	addi $sp, $sp, -4
-	sw $t2, 0($sp)
-	lw $t0, 0($sp)
-	lw $t1, 4($sp)
+	sw $t2, 16($fp)
+	lw $t0, 16($fp)
+	lw $t1, 12($fp)
 	add $t2, $t1, $t0
-	addi $sp, $sp, -4
-	sw $t2, 0($sp)
-	lw $t0, 0($sp)
-	addi $sp, $sp, -4
-	sw $t0, 0($sp)
-	sw $ra, 0($fp)
-	li $t0, 8
-	sw $t0, 4($fp)
-	add $fp, $fp, $t0
-	lw $t0, 0($sp)
+	sw $t2, 20($fp)
+	lw $t0, 20($fp)
+	sw $t0, 24($fp)
+	sw $ra, 0($sp)
+	addi $sp, $sp, 4
+	lw $t0, 24($fp)
 	move $a0, $t0
 	jal write
-	lw $t0, -4($fp)
-	sub $fp, $fp, $t0
-	li $t0, 0
 	addi $sp, $sp, -4
-	sw $t0, 0($sp)
-	lw $t0, 0($sp)
+	lw $ra, 0($sp)
+	li $t0, 0
+	sw $t0, 28($fp)
+	lw $t0, 28($fp)
 	move $v0, $t0
 	jr $ra
