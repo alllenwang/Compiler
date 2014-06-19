@@ -50,35 +50,24 @@ int main(int argc, char** argv)
 				t->number =num - t->number;
 			}
 			createintercode(head);
-			FILE* wf = fopen(argv[2],"w+");
+		/*	FILE* wf = fopen(argv[2],"w+");
 			if(!wf)
 			{
 				perror(argv[2]);
 				return 1;
 			}
-			FILE* wf1 = fopen(argv[3],"w+");
+		*/
+			FILE* wf1 = fopen(argv[2],"w+");
 			if(!wf1)
 			{
-				perror(argv[3]);
+				perror(argv[2]);
 				return 1;
 			}
 			optimize();
-			printcode(wf);
+			//printcode(wf);
 			create_code(wf1);
-			fclose(wf);
+			//fclose(wf);
 			fclose(wf1); 
-			Param * te = param_head;
-			for( ; te != NULL; te = te->next)
-			{
-				printf("%d %d %d\n",te->a.kind, te->a.u.value, te->num);
-			}
-		//	printf("---------------\n");
-		/*	Var * tem = var_head;
-			for( ; tem != NULL; tem = tem->next)
-			{
-				printf("%d %d %d\n",tem->a.kind, tem->a.u.value, tem->num);
-			}
-		*/
 		}
 		else
 		{

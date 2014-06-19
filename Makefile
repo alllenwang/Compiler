@@ -4,7 +4,6 @@ play:
 	flex lexical.l
 	bison -d syntax.y
 	gcc main.c tree/tree.c syntax.tab.c table/table.c semantics/semantics.c intercode/intercode.c intercode/createintercode.c assembler/assembler.c -lfl -ly -o parser
-	./parser test.c out.ir out.s
 clean:
 	rm -rf parser
 	rm -rf lex.yy.c

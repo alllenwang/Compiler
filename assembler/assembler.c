@@ -184,7 +184,7 @@ void create_code(FILE *wf)
 			case DIV:
 				get_temp(0, temp->u.addr.op1, wf);
 				get_temp(1, temp->u.addr.op2, wf);
-				fprintf(wf, "\tdiv $t1, $t0\n");
+				fprintf(wf, "\tdiv $t0, $t1\n");
 				fprintf(wf, "\tmflo $t2\n");
 				send_temp(2, temp->u.addr.result, wf);
 				break;
